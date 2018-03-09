@@ -1,31 +1,60 @@
 ﻿namespace Forum.App.Controllers
 {
     using Forum.App.Controllers.Contracts;
+    using Forum.App.Services;
+    using Forum.App.UserInterface;
     using Forum.App.UserInterface.Contracts;
+    using Forum.App.UserInterface.ViewModels;
+    using Forum.App.Views;
 
-
-    public class PostDetailsController : IController
+    public class PostDetailsController : IController, IUserRestrictedController
     {
-        public bool LoggedInUser => throw new System.NotImplementedException();
+        public int PostId { get; private set; }
+
+
+
+        public bool LoggedInUser { get; set; }
 
         public MenuState ExecuteCommand(int index)
         {
-            throw new System.NotImplementedException();
+            switch ((Command)index)
+            {
+                case Command.Back:
+                    return MenuState.AddReplyToPost;
+
+                case Command.AddReply:
+                    ForumViewEngine.ResetBuffer();
+                    return MenuState.Back;
+            }
+
+            throw new InvalidCommandException();
         }
 
         public IView GetView(string userName)
         {
-            throw new System.NotImplementedException();
+            PostViewModel pvm = PostService.GetPostViewModel(this.PostId);
+            return new PostDetailsView(pvm, this.LoggedInUser);
         }
 
         public void UserLogIn()
         {
-            throw new System.NotImplementedException();
+            this.LoggedInUser = true;
         }
 
         public void UserLogOut()
         {
-            throw new System.NotImplementedException();
+            this.LoggedInUser=false;
+        }
+
+        private enum Command
+        {
+            Back,
+            AddReply
+        }
+
+        public void SetPostId(int postId)
+        {
+            this.PostId = postId;
         }
     }
 }

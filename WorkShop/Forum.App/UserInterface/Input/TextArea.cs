@@ -115,6 +115,7 @@
             }
             this.lines = StringProcessor.Split(this.Text);
         }
+      
 
     }
 }
