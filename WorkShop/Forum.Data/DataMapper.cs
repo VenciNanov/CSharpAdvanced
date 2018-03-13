@@ -7,7 +7,6 @@ namespace Forum.Data
 {
     public class DataMapper
     {
-
         private const string DATA_PATH = "../data/";
 
         private const string CONFIG_PATH = "config.ini";
@@ -70,7 +69,7 @@ namespace Forum.Data
 
             foreach (var line in dataLines)
             {
-                var args = line.Split(";", System.StringSplitOptions.RemoveEmptyEntries);
+                var args = line.Split(";");
                 var id = int.Parse(args[0]);
                 var name = args[1];
                 var postIds = args[2]
@@ -154,7 +153,7 @@ namespace Forum.Data
 
             foreach (var line in dataLines)
             {
-                var args = line.Split(";", System.StringSplitOptions.RemoveEmptyEntries);
+                var args = line.Split(";");
                 var id = int.Parse(args[0]);
                 var title = args[1];
                 var content = args[2];
@@ -201,7 +200,7 @@ namespace Forum.Data
 
             foreach (var line in dataLines)
             {
-                var args = line.Split(";", System.StringSplitOptions.RemoveEmptyEntries);
+                var args = line.Split(";");
                 var id = int.Parse(args[0]);
                 var content = args[1];
                 var authorId = int.Parse(args[2]);

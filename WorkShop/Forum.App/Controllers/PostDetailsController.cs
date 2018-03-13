@@ -2,31 +2,29 @@
 {
     using Forum.App.Controllers.Contracts;
     using Forum.App.Services;
-    using Forum.App.UserInterface;
     using Forum.App.UserInterface.Contracts;
     using Forum.App.UserInterface.ViewModels;
     using Forum.App.Views;
 
     public class PostDetailsController : IController, IUserRestrictedController
     {
-        public int PostId { get; private set; }
 
-
-
+        private enum Command
+        {
+            Back, AddReply
+        }
         public bool LoggedInUser { get; set; }
+        public int PostId { get; private set; }
 
         public MenuState ExecuteCommand(int index)
         {
             switch ((Command)index)
             {
-                case Command.Back:
-                    return MenuState.AddReplyToPost;
-
                 case Command.AddReply:
-                    ForumViewEngine.ResetBuffer();
+                    return MenuState.AddReplyToPost;
+                case Command.Back:
                     return MenuState.Back;
             }
-
             throw new InvalidCommandException();
         }
 
@@ -43,15 +41,8 @@
 
         public void UserLogOut()
         {
-            this.LoggedInUser=false;
+            this.LoggedInUser = false;
         }
-
-        private enum Command
-        {
-            Back,
-            AddReply
-        }
-
         public void SetPostId(int postId)
         {
             this.PostId = postId;

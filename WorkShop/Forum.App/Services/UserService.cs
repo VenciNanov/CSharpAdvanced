@@ -1,10 +1,10 @@
-﻿using Forum.Data;
-using Forum.Models;
-using System.Linq;
-using static Forum.App.Controllers.SignUpController;
-
-namespace Forum.App.Services
+﻿namespace Forum.App.Services
 {
+    using Forum.Data;
+    using Forum.Models;
+    using System.Linq;
+    using static Forum.App.Controllers.SignUpController;
+
     public static class UserService
     {
         public static bool TryLogInUser(string username, string password)
@@ -47,25 +47,18 @@ namespace Forum.App.Services
 
             return SingUpStatus.UsernameTakenError;
         }
-
         internal static User GetUser(int userId)
         {
             ForumData forumData = new ForumData();
-
-            User user = forumData.Users.Find(x => x.Id == userId);
-
+            User user = forumData.Users.Find(u => u.Id.Equals(userId));
             return user;
         }
 
         internal static User GetUser(string username)
         {
             ForumData forumData = new ForumData();
-
-            User user = forumData.Users.Find(x => x.Username == username);
-
+            User user = forumData.Users.Find(x => x.Username.Equals(username));
             return user;
-
         }
-
     }
 }

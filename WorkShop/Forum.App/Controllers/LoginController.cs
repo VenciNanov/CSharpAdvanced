@@ -53,7 +53,7 @@
                         return MenuState.SuccessfulLogIn;
                     }
                     this.Error = true;
-                    return MenuState.SignUpError;
+                    return MenuState.Rerender;
 
                 case Command.Back:
                     this.ResetLogin();

@@ -11,36 +11,38 @@
     {
         public const int PAGE_OFFSET = 10;
         private const int COMMAND_COUNT = PAGE_OFFSET + 3;
-
-        public CategoriesController()
+        private enum Command
         {
-            this.CurrentPage = 0;
-            this.LoadCategories();
+            Back = 0,
+            ViewPost = 1,
+            PreviousPage = 11,
+            NextPage = 12
         }
 
-        private void LoadCategories()
+        public int CurrentPage
         {
-            this.AllCategoryNames = PostService.GetAllCategoryName();
-
-            this.CurrentPageCategories = this.AllCategoryNames
-                .Skip(this.CurrentPage * PAGE_OFFSET)
-                .Take(PAGE_OFFSET)
-                .ToArray();
+            get;
+            set;
         }
-
-
-        public int CurrentPage { get; set; }
-
-        private string[] AllCategoryNames { get; set; }
+        public string[] AllCategoryNames { get; set; }
         private string[] CurrentPageCategories { get; set; }
         private int LastPage => this.AllCategoryNames.Length / (PAGE_OFFSET + 1);
-
         private bool IsFirstPage => this.CurrentPage == 0;
         private bool IsLastPage => this.CurrentPage == this.LastPage;
-
+        private void ChangePage(bool forward = true)
+        {
+            this.CurrentPage += forward ? 1 : -1;
+            LoadCategories();
+        }
+        public void LoadCategories()
+        {
+            this.AllCategoryNames = PostService.GetAllCategoryNames();
+            this.CurrentPageCategories = this.AllCategoryNames.Skip(this.CurrentPage * PAGE_OFFSET)
+                .Take(PAGE_OFFSET).ToArray();
+        }
         public MenuState ExecuteCommand(int index)
         {
-            if (index > 1 && index > 11)
+            if (index > 1 && index < 11)
             {
                 index = 1;
             }
@@ -48,27 +50,15 @@
             {
                 case Command.Back:
                     return MenuState.Back;
-
                 case Command.ViewPost:
                     return MenuState.OpenCategory;
-
                 case Command.PreviousPage:
                     this.ChangePage(false);
                     return MenuState.Rerender;
-
                 case Command.NextPage:
-                    this.ChangePage();
                     return MenuState.Rerender;
-
             }
-
             throw new InvalidCommandException();
-
-        }
-
-        private void ChangePage(bool forward = true)
-        {
-            this.CurrentPage += forward ? 1 : -1;
         }
 
         public IView GetView(string userName)
@@ -76,14 +66,10 @@
             LoadCategories();
             return new CategoriesView(this.CurrentPageCategories, this.IsFirstPage, this.IsLastPage);
         }
-
-        private enum Command
+        public CategoriesController()
         {
-            Back = 0,
-            ViewPost = 1,
-            PreviousPage = 11,
-            NextPage = 12
-
+            this.CurrentPage = 0;
+            this.LoadCategories();
         }
     }
 }

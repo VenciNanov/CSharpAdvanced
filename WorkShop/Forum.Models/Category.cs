@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Forum.Models
+﻿namespace Forum.Models
 {
+    using System.Collections.Generic;
+
     public class Category
     {
         public Category(int id, string name)

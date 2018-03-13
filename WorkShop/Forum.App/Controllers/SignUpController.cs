@@ -1,4 +1,5 @@
-﻿namespace Forum.App.Controllers
+﻿
+namespace Forum.App.Controllers
 {
     using Forum.App;
     using Forum.App.Controllers.Contracts;

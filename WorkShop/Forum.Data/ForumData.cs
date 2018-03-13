@@ -1,13 +1,11 @@
-﻿using Forum.Models;
-using System;
+﻿
+using Forum.Models;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Forum.Data
 {
     public class ForumData
     {
-
         public ForumData()
         {
             this.Users = DataMapper.LoadUsers();

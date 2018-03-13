@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Forum.Models
 {
@@ -35,4 +33,3 @@ namespace Forum.Models
         public ICollection<int> ReplyIds { get; set; }
     }
 }
-

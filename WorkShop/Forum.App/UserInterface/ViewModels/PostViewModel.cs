@@ -12,9 +12,8 @@
 
         public PostViewModel()
         {
-            Content = new List<string>();
+            
         }
-
         public PostViewModel(Post post)
         {
             this.PostId = post.Id;
@@ -28,16 +27,13 @@
         private IList<string> GetLines(string content)
         {
             char[] contentChars = content.ToCharArray();
-
             IList<string> lines = new List<string>();
-
-            for (int i = 0; i < content.Length; i+=LINE_LENGHT)
+            for (int i = 0; i < content.Length; i+= LINE_LENGHT)
             {
                 char[] row = contentChars.Skip(i).Take(LINE_LENGHT).ToArray();
-                var rowString = string.Join("", row);
+                string rowString = string.Join("", row);
                 lines.Add(rowString);
             }
-
             return lines;
         }
 

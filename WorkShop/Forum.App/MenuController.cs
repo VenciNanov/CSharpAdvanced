@@ -1,13 +1,13 @@
 ﻿namespace Forum.App
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using Forum.App.Controllers;
     using Forum.App.Controllers.Contracts;
     using Forum.App.Services;
     using Forum.App.UserInterface;
     using Forum.App.UserInterface.Contracts;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
 
     internal class MenuController
     {
@@ -82,7 +82,6 @@
 
         internal void Back()
         {
-
             if (this.State == MenuState.Categories || this.State == MenuState.OpenCategory)
             {
                 IPaginationController currentController = (IPaginationController)this.CurrentController;
@@ -105,44 +104,67 @@
                 case MenuState.PostAdded:
                     AddPost();
                     break;
+
                 case MenuState.OpenCategory:
                     OpenCategory();
                     break;
+
                 case MenuState.ViewPost:
                     ViewPost();
                     break;
+
                 case MenuState.SuccessfulLogIn:
                     SuccessfulLogin();
                     break;
+
                 case MenuState.LoggedOut:
                     LogOut();
                     break;
+
                 case MenuState.Back:
                     this.Back();
                     break;
+
                 case MenuState.Rerender:
+                case MenuState.SignUpError:
                     RenderCurrentView();
                     break;
+
                 case MenuState.AddReplyToPost:
                     RedirectToAddReply();
                     break;
+
                 case MenuState.ReplyAdded:
                     AddReply();
                     break;
+
                 default:
-                    RedirectToMenu(newState);
+                    this.RedirectToMenu(newState);
                     break;
             }
         }
 
         private void AddReply()
         {
-            throw new NotImplementedException();
+            var addReplyController = (AddReplyController)CurrentController;
+            var postId = addReplyController.PostId;
+
+            var viewPostController = (PostDetailsController)controllers[(int)MenuState.ViewPost];
+            viewPostController.SetPostId(postId);
+
+            Back();
         }
 
         private void RedirectToAddReply()
         {
-            throw new NotImplementedException();
+            var viewPostController = (PostDetailsController)CurrentController;
+            var postId = viewPostController.PostId;
+            var addReplyController = (AddReplyController)controllers[(int)MenuState.AddReply];
+
+            addReplyController.SetReplyToPost(postId, Username);
+
+            RedirectToMenu(MenuState.AddReply);
+
         }
 
         private void LogOut()
@@ -156,6 +178,7 @@
         {
             var loginController = (IReadUserInfoController)this.CurrentController;
             this.Username = loginController.Username;
+
             this.LogInUser();
             RedirectToMenu(MenuState.Main);
         }
@@ -163,47 +186,34 @@
         private void ViewPost()
         {
             var categoryController = (CategoryController)this.CurrentController;
-
             int categoryId = categoryController.CategoryId;
-
-            var posts = PostService.GetPostByCategory(categoryId).ToArray();
-
-            var postIndex = categoryController.CurrentPage * CategoriesController.PAGE_OFFSET + this.currentOptionIndex;
+            var posts = PostService.GetPostsByCategory(categoryId).ToArray();
+            int postIndex = categoryController.CurrentPage * CategoryController.PAGE_OFFSET + this.currentOptionIndex;
             var postId = posts[postIndex - 1].Id;
-
             var postController = (PostDetailsController)this.controllers[(int)MenuState.ViewPost];
             postController.SetPostId(postId);
-
             this.RedirectToMenu(MenuState.ViewPost);
-
         }
 
         private void OpenCategory()
         {
             var categoriesController = (CategoriesController)this.CurrentController;
-
             int categoryIndex = categoriesController.CurrentPage * CategoriesController.PAGE_OFFSET + this.currentOptionIndex;
+
             var categoryCtrlr = (CategoryController)this.controllers[(int)MenuState.OpenCategory];
             categoryCtrlr.SetCategory(categoryIndex);
-
             this.RedirectToMenu(MenuState.OpenCategory);
         }
 
         private void AddPost()
         {
             var addPostController = (AddPostController)this.CurrentController;
-
             int postId = addPostController.Post.PostId;
-
             var postViewer = (PostDetailsController)this.controllers[(int)MenuState.ViewPost];
             postViewer.SetPostId(postId);
-
             addPostController.ResetPost();
-
             this.controllerHistory.Pop();
-
             this.RedirectToMenu(MenuState.ViewPost);
-
         }
 
         private void RenderCurrentView()
@@ -221,6 +231,7 @@
                 this.RenderCurrentView();
                 return true;
             }
+
             return false;
         }
 
@@ -228,9 +239,9 @@
         {
             foreach (var controller in this.controllers)
             {
-                if (controller is IUserRestrictedController userRestricdedController)
+                if (controller is IUserRestrictedController userRestrictedController)
                 {
-                    userRestricdedController.UserLogIn();
+                    userRestrictedController.UserLogIn();
                 }
             }
         }
@@ -239,9 +250,9 @@
         {
             foreach (var controller in this.controllers)
             {
-                if (controller is IUserRestrictedController userRestricdedController)
+                if (controller is IUserRestrictedController userRestrictedController)
                 {
-                    userRestricdedController.UserLogOut();
+                    userRestrictedController.UserLogOut();
                 }
             }
         }

@@ -1,22 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Forum.Models
+﻿namespace Forum.Models
 {
     public class Reply
     {
-        public int Id { get; set; }
-        public string Content { get; set; }
-        public int AuthorId { get; set; }
-        public int PostId { get; set; }
-
-        public Reply(int id,string content,int authorId,int postId)
+        public Reply(int id, string content, int authorId, int postId)
         {
-            this.Id = id;
-            this.Content = content;
-            this.AuthorId = authorId;
-            this.PostId = postId;
+            Id = id;
+            Content = content;
+            AuthorId = authorId;
+            PostId = postId;
         }
+
+        public int Id { get; set; }
+
+        public string Content { get; set; }
+
+        public int AuthorId { get; set; }
+
+        public int PostId { get; set; }
     }
 }
