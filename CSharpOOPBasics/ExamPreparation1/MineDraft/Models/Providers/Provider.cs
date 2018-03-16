@@ -2,14 +2,12 @@
 using System.Collections.Generic;
 using System.Text;
 
-public abstract class Provider
+public abstract class Provider : Miner
 {
-    private string id;
     private double energyOutput;
 
-    public Provider(string id, double energyOutput)
+    public Provider(string id, double energyOutput) : base(id)
     {
-        this.Id = id;
         this.EnergyOutput = energyOutput;
     }
 
@@ -38,17 +36,7 @@ public abstract class Provider
         }
     }
 
-    public string Id
-    {
-        get
-        {
-            return id;
-        }
-        set
-        {
-            id = value;
-        }
-    }
+
 
     public override string ToString()
     {

@@ -53,14 +53,11 @@ public class CommandInterpreter
                     break;
             }
 
-            if (result!=string.Empty)
+            if (result != string.Empty)
             {
                 this.writer.WriteLine(result);
             }
             if (command == "Shutdown") break;
-            {
-
-            }
         }
     }
 }

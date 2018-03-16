@@ -147,6 +147,6 @@ public class DraftManager
         sb.AppendLine($"Total Energy Stored: {this.totalEnergyProvided}");
         sb.AppendLine($"Total Mined Plumbus Ore: {this.totalMinedOre}");
 
-        return sb.ToString();
+        return sb.ToString().Trim();
     }
 }
