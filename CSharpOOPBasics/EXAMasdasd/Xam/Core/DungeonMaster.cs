@@ -1,4 +1,5 @@
-﻿using Exam.Models;
+﻿using Exam.Interfaces;
+using Exam.Models;
 using Exam.Models.Characters;
 using Exam.Models.Items;
 using System;
@@ -12,15 +13,17 @@ namespace Xam.Core
     public class DungeonMaster
     {
         private Dictionary<string, Character> heroes;
-        private Queue<Item> itemPool;
-        private Faction faction;
+        private Stack<Item> itemPool;
+
         private CharacterFactory characterFactory;
         private ItemFactory itemFactory;
+
+        private int lastSurvivorRounds;
 
         public DungeonMaster()
         {
             this.heroes = new Dictionary<string, Character>();
-            this.itemPool = new Queue<Item>();
+            this.itemPool = new Stack<Item>();
             this.characterFactory = new CharacterFactory();
             this.itemFactory = new ItemFactory();
         }
@@ -31,23 +34,18 @@ namespace Xam.Core
             var type = args[1];
             var name = args[2];
 
-            if (faction != "CSharp" || faction != "Java")
-            {
-                throw new ArgumentException($"Invalid faction {faction}!"); ;
-            }
-
             var character = characterFactory.CreateCharacter(faction, args[1], args[2]);
 
             heroes[name] = character;
 
-            return $"{name} joined the party";
+            return $"{name} joined the party!";
         }
 
         public string AddItemToPool(string[] args)
         {
             var item = itemFactory.CreateItem(args[0]);
 
-            itemPool.Enqueue(item);
+            this.itemPool.Push(item);
 
             return $"{args[0]} added to pool.";
         }
@@ -55,17 +53,20 @@ namespace Xam.Core
         public string PickUpItem(string[] args)
         {
             var player = args[0];
-            var item = itemPool.Last();
 
-            if (itemPool.Count == 0)
+            if (!heroes.ContainsKey(player))
+            {
+                throw new ArgumentException($"Character {player} not found!");
+            }
+
+            if (!this.itemPool.Any())
             {
                 throw new InvalidOperationException("No items left in pool!");
             }
-
-            heroes[player].Bag.AddItem(item);
-            itemPool.Dequeue();
-
-            return $"{player} picked up {item.ToString()}!";
+            
+            var item = itemPool.Pop();
+            heroes[player].ReciveItem(item);
+            return $"{player} picked up {item.GetType().Name}!";
 
         }
 
@@ -80,7 +81,8 @@ namespace Xam.Core
             }
 
             var hero = heroes[player];
-            var item = heroes[player].Bag.Items.FirstOrDefault(x => x.GetType().Name == itemName);
+
+            var item = hero.Bag.GetItem(itemName);
 
             heroes[player].UseItem(item);
 
@@ -97,11 +99,16 @@ namespace Xam.Core
             {
                 throw new ArgumentException($"Character {giverName} not found!");
             }
-
+            if (!heroes.ContainsKey(reciverName))
+            {
+                throw new ArgumentException($"Character {reciverName} not found!");
+            }
+            var giver = heroes[giverName];
             var reciver = heroes[reciverName];
 
-            var item = heroes[giverName].Bag.Items.FirstOrDefault(x => x.GetType().Name == itemName);
-            heroes[giverName].UseItemOn(item, reciver);
+            var item = giver.Bag.GetItem(itemName);
+
+            giver.UseItemOn(item, reciver);
 
             return $"{giverName} used {itemName} on {reciverName}.";
         }
@@ -112,28 +119,34 @@ namespace Xam.Core
             var reciverName = args[1];
             var itemName = args[2];
 
+
             if (!heroes.ContainsKey(giverName))
             {
                 throw new ArgumentException($"Character {giverName} not found!");
             }
+            if (!heroes.ContainsKey(reciverName))
+            {
+                throw new ArgumentException($"Character {reciverName} not found!");
+            }
+
+            var giver = heroes[giverName];
             var reciver = heroes[reciverName];
+            var item = giver.Bag.GetItem(itemName);
 
-            var item = heroes[giverName].Bag.Items.FirstOrDefault(x => x.GetType().Name == itemName);
+            giver.GiveCharacterItem(item, reciver);
 
-            heroes[giverName].GiveCharacterItem(item, reciver);
-
-            return $"{giverName} used {itemName} on {reciverName}.";
+            return $"{giverName} gave {reciverName} {itemName}.";
         }
 
         public string GetStats()
         {
-            var sb = new StringBuilder();
-            foreach (var hero in heroes.OrderByDescending(x => x.Value.IsAlive).ThenByDescending(x => x.Value.Health))
-            {
+            var sorted = this.heroes.Values
+                .OrderByDescending(x => x.IsAlive)
+                .ThenByDescending(x => x.Health);
 
-                sb.Append(string.Join(Environment.NewLine, hero.ToString()));
-            }
-            return sb.ToString().Trim();
+            var result = string.Join(Environment.NewLine, sorted);
+
+            return result;
         }
 
         public string Attack(string[] args)
@@ -149,22 +162,31 @@ namespace Xam.Core
             {
                 throw new ArgumentException($"Character {reciverName} not found!");
             }
-            if (heroes[attackerName].GetType().Name == "Cleric")
-            {
-                throw new ArgumentException($"{attackerName} cannot attack!");
-            }
+            //if (heroes[attackerName].GetType().Name == "Cleric")
+            //{
+            //    throw new ArgumentException($"{attackerName} cannot attack!");
+            //}
 
-            Warrior warrior = (Warrior)heroes[attackerName];
+             var attacker = heroes[attackerName];
+
+            if (!(attacker is IAttackable attackingCharacter))
+            {
+                throw new ArgumentException($"{attacker.Name} cannot attack!");
+            }
 
             var reciver = heroes[reciverName];
 
-            warrior.Attack(reciver);
+            attackingCharacter.Attack(reciver);
 
-            var sb = new StringBuilder();
+            var result =
+                $"{attackerName} attacks {reciverName} for {attacker.AbilityPoints} hit points! {reciverName} has {reciver.Health}/{reciver.BaseHealth} HP and {reciver.Armor}/{reciver.BaseArmor} AP left!";
 
-            sb.AppendLine($"{attackerName} attacks {reciverName} for {warrior.AbilityPoints} hit points! {reciverName} has {reciver.Health}/{reciver.BaseHealth} HP and {reciver.Armor}/{reciver.BaseArmor} AP left!");
+            if (!reciver.IsAlive)
+            {
+                result += Environment.NewLine + $"{reciver.Name} is dead!";
+            }
 
-            return sb.ToString().Trim();
+            return result;
         }
 
         public string Heal(string[] args)
@@ -180,59 +202,57 @@ namespace Xam.Core
             {
                 throw new ArgumentException($"Character {reciverName} not found!");
             }
-            if (heroes[attackerName].GetType().Name == "Warrior")
+            //if (heroes[attackerName].GetType().Name == "Warrior")
+            //{
+            //    throw new ArgumentException($"{attackerName} cannot attack!");
+            //}
+
+            var healer = heroes[attackerName];
+            if (!(healer is IHealable healingCharacter))
             {
-                throw new ArgumentException($"{attackerName} cannot attack!");
+                throw new ArgumentException($"{healer.Name} cannot heal!");
             }
-
-            Cleric healer = (Cleric)heroes[attackerName];
-
             var reciver = heroes[reciverName];
 
-            healer.Heal(reciver);
+            healingCharacter.Heal(reciver);
 
             var sb = new StringBuilder();
 
-            sb.AppendLine($"{healer.Name} heals {reciverName} for {healer.AbilityPoints}! {reciverName} has {reciver.Health} health now!");
+            var result =
+                 $"{healer.Name} heals {reciver.Name} for {healer.AbilityPoints}! {reciver.Name} has {reciver.Health} health now!";
 
-            return sb.ToString().Trim();
+            return result;
         }
 
         public string EndTurn(string[] args)
         {
-            var character = heroes.Values;
+            var aliveChars = heroes.Values.Where(x => x.IsAlive).ToArray();
 
             var sb = new StringBuilder();
 
-            if (heroes.Values.Where(x => x.IsAlive).Count() == 1)
+            foreach (var hero in aliveChars)
             {
-                foreach (var hero in heroes.Values)
-                {
-                    hero.RestMultiplier += 1;
-                }
+                var previousHp = hero.Health;
+
+                hero.Rest();
+
+                var currentHP = hero.Health;
+                sb.AppendLine($"{hero.Name} rests ({previousHp} => {currentHP})");
             }
-            foreach (var player in heroes.Values.Where(x => x.IsAlive))
+            if (aliveChars.Length <= 1)
             {
-                var hpAfterRest = player.BaseHealth * player.RestMultiplier;
-
-                sb.AppendLine($"{player.Name} rests ({player.Health} => {hpAfterRest})");
-
-                player.Rest();
+                this.lastSurvivorRounds++;
             }
-            return sb.ToString().Trim();
-
+            var result = sb.ToString().TrimEnd('\r', '\n');
+            return result;
         }
 
         public bool IsGameOver()
         {
-            if (heroes.Values.Any(x => x.IsAlive))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            var oneOrZeroSurvivors = this.heroes.Values.Count(x => x.IsAlive) <= 1;
+            var lasSuriversSurvivedTooLong = this.lastSurvivorRounds > 1;
+
+            return oneOrZeroSurvivors && lasSuriversSurvivedTooLong;
         }
 
     }

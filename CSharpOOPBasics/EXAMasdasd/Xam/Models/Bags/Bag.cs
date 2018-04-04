@@ -9,33 +9,35 @@ namespace Exam.Models.Bags
     public abstract class Bag
     {
         private int capacity;
-        private int load;
-        private IReadOnlyList<Item> items;
+        
+        private readonly List<Item> items;
 
         public Bag(int capacity)
         {
             this.Capacity = capacity;
             this.items = new List<Item>();
-            this.Load = this.items.Sum(x => x.Weight);
         }
 
-
-        public List<Item> Items
+        protected int Capacity
         {
-            get { return items.ToList(); }
-            set { items = value; }
+            get
+            {
+                return this.capacity;
+            }
+            set
+            {
+                this.capacity = value;
+            }
         }
 
-        public int Load
-        {
-            get { return load; }
-            set { load = value; }
-        }
+        private int Load => this.items.Sum(i => i.Weight);
 
-        public int Capacity
+        public IReadOnlyCollection<Item> Items
         {
-            get { return capacity; }
-            set { capacity = value; }
+            get
+            {
+                return this.items.AsReadOnly();
+            }
         }
 
         public void AddItem(Item item)
@@ -44,25 +46,32 @@ namespace Exam.Models.Bags
             {
                 throw new InvalidOperationException("Bag is full!");
             }
-            this.Items.Add(item);
+
+            this.items.Add(item);
         }
 
         public Item GetItem(string name)
         {
-            Item item = items.SingleOrDefault(x => x.GetType().Name == name);
+            EnsureItemExists(name);
 
-            if (this.Items.Count <= 0)
-            {
-                throw new InvalidOperationException("Bag is empty!");
-            }
-            else if (!this.Items.Any(x => x.GetType().Name == name))
-            {
-                throw new ArgumentException($"No item with {name} in bag!");
-            }
+            var item = this.items.First(i => i.GetType().Name == name);
+            this.items.Remove(item);
 
-            this.Items.Remove(item);
             return item;
         }
 
+        private void EnsureItemExists(string name)
+        {
+            if (!this.items.Any())
+            {
+                throw new InvalidOperationException("Bag is empty!");
+            }
+
+            var itemExists = this.Items.Any(i => i.GetType().Name == name);
+            if (!itemExists)
+            {
+                throw new ArgumentException($"No item with name {name} in bag!");
+            }
+        }
     }
 }

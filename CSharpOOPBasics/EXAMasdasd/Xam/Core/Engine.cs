@@ -20,14 +20,9 @@ namespace Xam.Core
         {
             while (this.isRunning)
             {
-                var inputCommand = this.ReadInput();
-                var commandParameters = this.ParseInput(inputCommand);
+                var commandParameters = this.ReadInput();
+               // var commandParameters = this.ParseInput(inputCommand);
 
-                if (string.IsNullOrEmpty(inputCommand))
-                {
-                    isRunning = false;
-                    break;
-                }
                 try
                 {
                     this.Execute(commandParameters);
@@ -40,34 +35,47 @@ namespace Xam.Core
                 {
                     OutputWriter($"Invalid Operation: {ioe.Message}");
                 }
+                if (this.dungeon.IsGameOver() || this.isRunning == false)
+                {
+                    OutputWriter("Final stats:");
+                    OutputWriter(this.dungeon.GetStats());
+                    this.isRunning = false;
+                }
             }
         }
 
-        private void Execute(string[] commandParameters)
+        private void Execute(string command)
         {
-            var command = commandParameters[0];
-            commandParameters = commandParameters.Skip(1).ToArray();
+            if (string.IsNullOrEmpty(command))
+            {
+                this.isRunning = false;
+                return;
+            }
 
-            switch (command)
+            var commandArgs = command.Split(' ');
+            var commandName = commandArgs[0];
+            var args = commandArgs.Skip(1).ToArray();
+                        
+            switch (commandName)
             {
                 case "JoinParty":
-                    OutputWriter(this.dungeon.JoinParty(commandParameters));
+                    OutputWriter(this.dungeon.JoinParty(args));
                     break;
 
                 case "AddItemToPool":
-                    OutputWriter(this.dungeon.AddItemToPool(commandParameters));
+                    OutputWriter(this.dungeon.AddItemToPool(args));
                     break;
 
                 case "PickUpItem":
-                    OutputWriter(this.dungeon.PickUpItem(commandParameters));
+                    OutputWriter(this.dungeon.PickUpItem(args));
                     break;
 
                 case "UseItem":
-                    OutputWriter(this.dungeon.UseItem(commandParameters));
+                    OutputWriter(this.dungeon.UseItem(args));
                     break;
 
                 case "UseItemOn":
-                    OutputWriter(this.dungeon.UseItemOn(commandParameters));
+                    OutputWriter(this.dungeon.UseItemOn(args));
                     break;
 
                 case "GetStats":
@@ -75,26 +83,19 @@ namespace Xam.Core
                     break;
 
                 case "GiveCharacterItem":
-                    OutputWriter(this.dungeon.GiveCharacterItem(commandParameters));
+                    OutputWriter(this.dungeon.GiveCharacterItem(args));
                     break;
 
                 case "Attack":
-                    OutputWriter(this.dungeon.Attack(commandParameters));
+                    OutputWriter(this.dungeon.Attack(args));
                     break;
 
                 case "Heal":
-                    OutputWriter(this.dungeon.Heal(commandParameters));
+                    OutputWriter(this.dungeon.Heal(args));
                     break;
 
                 case "EndTurn":
-                    OutputWriter(this.dungeon.EndTurn(commandParameters));
-                    break;
-
-                case "IsGameOver":
-
-                    var isOver = this.dungeon.IsGameOver();
-                    isRunning = false;
-                    OutputWriter(isOver);
+                    OutputWriter(this.dungeon.EndTurn(args));
                     break;
             }
         }

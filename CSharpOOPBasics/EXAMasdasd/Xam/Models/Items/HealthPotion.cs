@@ -7,17 +7,13 @@ namespace Exam.Models.Items
 {
     public class HealthPotion : Item
     {
-        public HealthPotion(int weight) : base(5)
+        public HealthPotion() : base(5)
         {
         }
 
         public override void AffectCharacter(Character character)
         {
-            if (!character.IsAlive)
-            {
-                throw new InvalidOperationException("Must be alive to perform this action!");
-            }
-
+            base.AffectCharacter(character);
             character.Health += 20;
 
         }

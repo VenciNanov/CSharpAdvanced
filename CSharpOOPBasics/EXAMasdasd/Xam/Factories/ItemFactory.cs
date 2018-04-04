@@ -7,22 +7,26 @@ namespace Xam.Factories
 {
     public class ItemFactory
     {
-        public Item CreateItem(string itemName)
+        public Item CreateItem(string name)
         {
+            Item item;
 
-            switch (itemName)
+            switch (name)
             {
                 case "HealthPotion":
-                    return new HealthPotion(5);
-
+                    item= new HealthPotion();
+                    break;
                 case "PoisonPotion":
-                    return new PoisonPotion(5);
-
+                    item= new PoisonPotion();
+                    break;
                 case "ArmorRepairKit":
-                    return new ArmorRepairKit(10);
+                    item = new ArmorRepairKit();
+                    break;
                 default:
-                    throw new ArgumentException($"Invalid item {itemName}!");
+                    throw new ArgumentException($"Invalid item \"{name}\"!");
             }
+
+            return item;
         }
     }
 }

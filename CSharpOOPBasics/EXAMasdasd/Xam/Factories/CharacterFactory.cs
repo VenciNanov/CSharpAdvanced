@@ -25,7 +25,7 @@ namespace Xam.Factories
                     character = new Cleric(name, parsedFaction);
                     break;
                 default:
-                    throw new ArgumentException($"Invalid character type {type}!"); ;
+                    throw new ArgumentException($"Invalid character type \"{type}\"!");
             }
 
             return character;

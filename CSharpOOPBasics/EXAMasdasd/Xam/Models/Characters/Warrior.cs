@@ -14,22 +14,22 @@ namespace Exam.Models.Characters
 
         public void Attack(Character character)
         {
-            if (!IsAlive || !character.IsAlive)
+            if (!this.IsAlive || !character.IsAlive)
             {
                 throw new InvalidOperationException("Must be alive to perform this action!");
             }
 
-            if (character.Name == Name)
+            if (character.Name == this.Name)
             {
                 throw new InvalidOperationException("Cannot attack self!");
             }
 
-            if (character.Faction == Faction)
+            if (character.Faction == this.Faction)
             {
                 throw new ArgumentException($"Friendly fire! Both characters are from {Faction} factoon!");
             }
 
-            TakeDamage(character.AbilityPoints);
+           character.TakeDamage(this.AbilityPoints);
         }
     }
 }
