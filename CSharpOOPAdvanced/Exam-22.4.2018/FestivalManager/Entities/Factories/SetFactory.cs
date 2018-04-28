@@ -14,9 +14,15 @@ namespace FestivalManager.Entities.Factories
     {
         public ISet CreateSet(string name, string type)
         {
-            Type setType = Assembly.GetCallingAssembly().GetTypes().FirstOrDefault(x => x.Name == type);
+            var allTypes = Assembly.GetCallingAssembly().GetTypes();
 
-            return (ISet)Activator.CreateInstance(setType, name);
+            var setType = allTypes
+                .Where(t => typeof(ISet).IsAssignableFrom(t))
+                .FirstOrDefault(t => t.Name == type);
+
+            var set = (ISet)Activator.CreateInstance(setType, name);
+
+            return set;
         }
     }
 }

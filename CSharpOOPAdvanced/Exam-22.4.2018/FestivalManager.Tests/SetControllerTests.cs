@@ -3,49 +3,65 @@
 namespace FestivalManager.Tests
 {
     using FestivalManager.Core.Controllers;
-    using FestivalManager.Core.Controllers.Contracts;
     using FestivalManager.Entities;
     using FestivalManager.Entities.Contracts;
+    using FestivalManager.Entities.Instruments;
     using FestivalManager.Entities.Sets;
     using NUnit.Framework;
+    using System;
+    using System.Linq;
+    using System.Text;
 
     [TestFixture]
     public class SetControllerTests
     {
-        private IStage stage;
-        private ISetController setController;
-        [SetUp]
-        public void SetUp()
+        [Test]
+        public void PerformSetsReturnsNothingIfNoSongsArePresent()
         {
-            this.stage = new Stage();
-            this.setController = new SetController(stage);
+            IStage stage = new Stage();
+            stage.AddSet(new Short("Set1"));
+            Performer performer = new Performer("Ivan", 20);
+
+            performer.AddInstrument(new Guitar());
+
+
+            SetController setController = new SetController(stage);
+
+            StringBuilder expectedResult = new StringBuilder();
+
+            expectedResult.AppendLine("1. Set1:");
+            expectedResult.AppendLine("-- Did not perform");
+
+            string result = expectedResult.ToString().TrimEnd();
+
+            Assert.That(setController.PerformSets(), Is.EqualTo(result));
         }
 
         [Test]
-        public void CtorShouldInitilaizeCorrectProperties()
+        public void InstrumentsWearDown()
         {
-            this.setController = new SetController(stage);
+            IStage stage = new Stage();
+
+            ISet set = new Short("Short");
+
+            ISong song = new Song("Song1", new TimeSpan(0, 1, 2));
+
+            IPerformer performer = new Performer("Ivan", 20);
+
+            performer.AddInstrument(new Guitar());
+
+            set.AddSong(song);
+            set.AddPerformer(performer);
+
+            stage.AddSet(set);
+
+            SetController setController = new SetController(stage);
+
+            setController.PerformSets();
+
+            int expectedResult = 40;
+
+            Assert.That(performer.Instruments.First().Wear, Is.EqualTo(expectedResult));
         }
-
-        [Test]
-        public void AssertThatSetsAreAddedCorrectly()
-        {
-            var set1 = new Short("shortSet");
-            var set2 = new Medium("mediumSet");
-            var set3 = new Long("LongSet");
-
-            this.stage.AddSet(set1);
-            this.stage.AddSet(set2);
-            this.stage.AddSet(set3);
-
-            Assert.AreEqual(3, this.stage.Sets.Count);
-        }
-
-        [Test]
-        public void AsserThatSetCanPerform()
-        {
-            this.
-        }
-        
     }
 }

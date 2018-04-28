@@ -16,6 +16,7 @@
         {
             this.Name = name;
             this.MaxDuration = maxDuration;
+
             this.performers = new List<IPerformer>();
             this.songs = new List<ISong>();
         }
@@ -26,21 +27,15 @@
 
         public TimeSpan ActualDuration => new TimeSpan(this.Songs.Sum(s => s.Duration.Ticks));
 
-        public IReadOnlyCollection<IPerformer> Performers
-        {
-            get { return performers; }
-        }
+        public IReadOnlyCollection<IPerformer> Performers => (IReadOnlyCollection<IPerformer>)this.performers;
 
-        public IReadOnlyCollection<ISong> Songs
-        {
-            get { return songs; }
-        }
+        public IReadOnlyCollection<ISong> Songs => (IReadOnlyCollection<ISong>)this.songs;
 
         public void AddPerformer(IPerformer performer) => this.performers.Add(performer);
 
         public void AddSong(ISong song)
         {
-            if (ActualDuration>= this.MaxDuration)
+            if (song.Duration + ActualDuration > this.MaxDuration)
             {
                 throw new InvalidOperationException("Song is over the set limit!");
             }

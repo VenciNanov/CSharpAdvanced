@@ -12,9 +12,13 @@
     {
         public IInstrument CreateInstrument(string type)
         {
-            Type instrumentType = Assembly.GetCallingAssembly().GetTypes().FirstOrDefault(x => x.Name == type);
+            var instrumentType = Assembly.GetCallingAssembly().GetTypes()
+                .Where(t => typeof(IInstrument).IsAssignableFrom(t))
+                .FirstOrDefault(t => t.Name == type);
 
-            return (IInstrument)Activator.CreateInstance(instrumentType);
+            var instrument = (IInstrument)Activator.CreateInstance(instrumentType);
+
+            return instrument;
         }
     }
 }

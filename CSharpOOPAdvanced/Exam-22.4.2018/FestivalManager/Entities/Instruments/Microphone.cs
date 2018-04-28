@@ -2,10 +2,6 @@
 {
     public class Microphone : Instrument
     {
-        public Microphone()
-        {
-
-        }
-	    protected override int RepairAmount => 80;
+       	    protected override int RepairAmount => 80;
     }
 }

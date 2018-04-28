@@ -120,28 +120,28 @@
             return $"Registered performer {performer.Name}";
         }
 
-        public string SongRegistration(string[] args)
-        {
-            var songName = args[0];
-            var setName = args[1];
+        //public string SongRegistration(string[] args)
+        //{
+        //    var songName = args[0];
+        //    var setName = args[1];
 
-            if (!this.stage.HasSet(setName))
-            {
-                throw new InvalidOperationException("Invalid set provided");
-            }
+        //    if (!this.stage.HasSet(setName))
+        //    {
+        //        throw new InvalidOperationException("Invalid set provided");
+        //    }
 
-            if (!this.stage.HasSong(songName))
-            {
-                throw new InvalidOperationException("Invalid song provided");
-            }
+        //    if (!this.stage.HasSong(songName))
+        //    {
+        //        throw new InvalidOperationException("Invalid song provided");
+        //    }
 
-            var set = this.stage.GetSet(setName);
-            var song = this.stage.GetSong(songName);
+        //    var set = this.stage.GetSet(setName);
+        //    var song = this.stage.GetSong(songName);
 
-            set.AddSong(song);
+        //    set.AddSong(song);
 
-            return $"Added {song} to {set.Name}";
-        }
+        //    return $"Added {song} to {set.Name}";
+        //}
 
         public string AddPerformerToSet(string[] args)
         {
